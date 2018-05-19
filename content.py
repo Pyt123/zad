@@ -5,8 +5,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
 
-BATCH_SIZE = 64
-HIDDEN_SIZES = [900]
+HIDDEN_SIZES = [336, 336]
 
 NUM_OF_CLASSES = 36
 INPUT_RESOLUTION = 56
@@ -17,34 +16,40 @@ class NeuralNet(nn.Module):
         super().__init__()
         self.fc1 = nn.Linear(INPUT_RESOLUTION * INPUT_RESOLUTION, HIDDEN_SIZES[0])
         self.fc2 = nn.Linear(HIDDEN_SIZES[0], NUM_OF_CLASSES)
+        #self.fc3 = nn.Linear(HIDDEN_SIZES[1], NUM_OF_CLASSES)
 
     def forward(self, x):
-        x = x.view(-1, INPUT_RESOLUTION * INPUT_RESOLUTION)
+        #x = x.view(-1, INPUT_RESOLUTION * INPUT_RESOLUTION)
         x = F.relu(self.fc1(x))
+        #x = F.relu(self.fc2(x))
         return self.fc2(x)
 
 
 def train():
     COUNT = 27500
-    EPOCHS = 200000
-    START_MOMENTUM = 0.05
+    EPOCHS = 100000
+    START_MOMENTUM = 0.5
     MOMENTUM = START_MOMENTUM
+    START_LR = 0.5
+    LR = START_LR
     DIVIDER = 1.2
-    EPOCHS_TO_CHANGE = 100
+    EPOCHS_TO_CHANGE = 50
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
+    BATCH_SIZE = 500
+    START_TO_ADAM = 20000
 
     # Load data
     (x_train, y_train) = pkl.load(open('train.pkl', mode='rb'))
     (x_train, y_train) = (x_train[:COUNT], y_train[:COUNT])
 
     # Create model
-    #model = NeuralNet().cuda()
+    model = NeuralNet().cuda()
     # Load model
-    model = torch.load('mytraining.pth')
+    #model = torch.load('mytraining.pth')
 
     # Some stuff
-    optimizer = optim.Adam(model.parameters(), lr=0.0001, eps=1e-3)
-    #optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=MOMENTUM)
+    #optimizer = optim.RMSprop(model.parameters())
+    optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
     criterion = nn.CrossEntropyLoss()
 
     model.train()
@@ -52,24 +57,27 @@ def train():
     # Convert numpy arrays to torch variables
     inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
     targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
+    targets = targets.squeeze(1)
 
     for epoch in range(EPOCHS):
         if epoch == NEXT_TO_CHANGE:
             MOMENTUM /= DIVIDER
-            #optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=MOMENTUM)
+            LR /= DIVIDER
+            if epoch < START_TO_ADAM:
+                optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             torch.save(model, 'mytraining.pth')
-
-        # Forward pass
+        if epoch == START_TO_ADAM:
+            optimizer = optim.Adam(model.parameters(), lr=1e-3, eps=1e-3)
         outputs = model(inputs)
-        loss = criterion(outputs, targets.squeeze(1))
+        loss = criterion(outputs, targets)
 
         # Backward and optimize
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        if epoch % 10 == 0:
+        if epoch % 50 == 0:
             print('Epoch [{}/{}],\tLoss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'mytraining.pth')

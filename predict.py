@@ -16,7 +16,7 @@ import numpy as np
 def save_model_as_numpy(model):
     i = 1
     for parameter in model.parameters():
-        nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float16)
+        nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float32)
         np.save('model/params' + str(i), nump, allow_pickle=True)
         i += 1
 
@@ -42,8 +42,8 @@ def get_predicted(x):
     w1 = np.transpose(w1).copy(order='C')
     w2 = np.transpose(w2).copy(order='C')
     output_array = []
-    layer1 = np.empty((900,), order='C')
-    layer2 = np.empty((36,), order='C')
+    layer1 = np.empty((336,), order='C', dtype=np.float32)
+    layer2 = np.empty((36,), order='C', dtype=np.float32)
     length = len(x)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
