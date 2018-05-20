@@ -69,7 +69,7 @@ def train(x_train, y_train, num_of_try, learning_rate):
     #LR = START_LR
     #DIVIDER_MOM = 1.03
     #DIVIDER_LR = 1.05
-    EPOCHS_TO_CHANGE = 500
+    EPOCHS_TO_CHANGE = 300
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
@@ -112,7 +112,7 @@ def train(x_train, y_train, num_of_try, learning_rate):
         loss.backward()
         optimizer.step()
 
-        if epoch % 500 == 0:
+        if epoch % EPOCHS_TO_CHANGE == 0:
             print('Epoch [{}/{}],\tLoss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'endingmodel' + str(num_of_try) + '.pth')
