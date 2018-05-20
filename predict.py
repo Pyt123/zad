@@ -62,7 +62,7 @@ def get_predicted(x, model):
 
 EPOCHS = 3000
 
-def train(x_train, y_train, num_of_try, learning_rate):
+def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
     #MOMENTUM = START_MOMENTUM
     #START_LR = 1
@@ -82,7 +82,7 @@ def train(x_train, y_train, num_of_try, learning_rate):
     # Some stuff
     #optimizer = optim.RMSprop(model.parameters())
     #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, eps=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, eps=epsilon)
     criterion = nn.CrossEntropyLoss()
     model.train()
 
@@ -137,10 +137,13 @@ def test(model, y_val):
 
 INCREASE_EPOCHS = 500
 
-learning_rates = [0.001, 0.0008, 0.0006, 0.0005, 0.0003]
+learning_rates = [0.001, 0.0008, 0.0006]
+epsilons = [0.001, 0.0001, 0.00001]
 for i in range(len(learning_rates)):
-    print('Testing learning rate = ' + str(learning_rates[i]))
-    train(x_train, y_train, i, learning_rates[i])
+    for j in range(len(epsilons)):
+        print('Testing learning rate = ' + str(learning_rates[i]) + ' and epsilon = ' + str(epsilons[j]))
+        train(x_train, y_train, i + 100 * j, learning_rates[i], epsilons[j])
+        print('\n')
     print('\n')
     EPOCHS += INCREASE_EPOCHS
 
