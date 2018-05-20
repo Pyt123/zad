@@ -43,24 +43,26 @@ def relu(x):
 
 def get_predicted(x, model):
     save_model_as_numpy(model)
-    (w1, _, w2, _) = load_model_from_file()
+    (w1, p1, w2, p2) = load_model_from_file()
     w1 = np.transpose(w1).copy(order='C')
     w2 = np.transpose(w2).copy(order='C')
     output_array = []
-    layer1 = np.empty((880,), order='C')#, dtype=np.float32)
+    layer1 = np.empty((336,), order='C')#, dtype=np.float32)
     layer2 = np.empty((36,), order='C')#, dtype=np.float32)
     length = len(x)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
+        layer1 += p1
         layer1 = relu(layer1)
         np.matmul(layer1, w2, out=layer2)
+        layer2 += p2
         layer2 = relu(layer2)
         output_array.append(layer2.argmax())
 
     output_vector = np.array(output_array)
     return output_vector.reshape((len(output_vector), 1))
 
-EPOCHS = 6000
+EPOCHS = 5000
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
@@ -116,20 +118,17 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             print('Epoch [{}/{}],\tLoss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'endingmodel' + str(num_of_try) + '.pth')
-    ratio = test(model, y_val)
-    if ratio > LAST_BEST:
-        LAST_BEST = ratio
-        BEST_EPOCH = epoch
-        torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
-
     print('END-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
     return model
 
 
 def test(model, y_val):
-    pred = get_predicted(x_val, model)
     good = 0
+    pred = get_predicted(x_val, model)
+    #model.eval()
     for i in range(0, 2634):
+        #pred = model(x_val[i]).cpu().data.numpy()
+        #if pred.argmax() == y_val[i]:
         if pred[i] == y_val[i]:
             good += 1
     ratio = (good / 2634.0) * 100
@@ -140,10 +139,10 @@ def test(model, y_val):
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
 (x_train, y_train) = (x[:27500], y[:27500])
 (x_val, y_val) = (x[27500:], y[27500:])
-
-INCREASE_EPOCHS = 2000
-
-learning_rates = [0.0008, 0.0006]
+#x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
+#targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
+INCREASE_EPOCHS = 1000
+learning_rates = [0.0008]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
@@ -153,6 +152,11 @@ for i in range(len(learning_rates)):
     print('\n')
     EPOCHS += INCREASE_EPOCHS
 
+#model = torch.load('bestmodel0.pth')
+#save_model_as_numpy(model)
+#load_model_from_file()
+#test(model, y_val)
+#print('saved as numpy')
 exit(0)
 
 #save_model_as_numpy(model)
