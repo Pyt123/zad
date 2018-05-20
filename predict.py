@@ -62,14 +62,14 @@ def get_predicted(x, model):
 
 
 def train(x_train, y_train, num_of_try, learning_rate):
-    EPOCHS = 50000
+    EPOCHS = 30000
     #START_MOMENTUM = 1
     #MOMENTUM = START_MOMENTUM
     #START_LR = 1
     #LR = START_LR
     #DIVIDER_MOM = 1.03
     #DIVIDER_LR = 1.05
-    EPOCHS_TO_CHANGE = 1000
+    EPOCHS_TO_CHANGE = 500
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
@@ -102,7 +102,7 @@ def train(x_train, y_train, num_of_try, learning_rate):
                 torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
                 LAST_BEST = ratio
                 BEST_EPOCH = epoch
-                print('-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----')
+                print('\n-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
 
         outputs = model(inputs)
         loss = criterion(outputs, targets)
@@ -116,7 +116,7 @@ def train(x_train, y_train, num_of_try, learning_rate):
             print('Epoch [{}/{}],\tLoss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'endingmodel' + str(num_of_try) + '.pth')
-    print('END-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----')
+    print('END-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
     return model
 
 
@@ -135,7 +135,7 @@ def test(model, y_val):
 (x_train, y_train) = (x[:27500], y[:27500])
 (x_val, y_val) = (x[27500:], y[27500:])
 
-learning_rates = [0.01, 0.005, 0.001, 0.0005, 0.0001, 0.00005]
+learning_rates = [0.001, 0.0006, 0.0003, 0.0001, 0.00005, 0.00002]
 for i in range(len(learning_rates)):
     print('Testing learning rate = ' + str(learning_rates[i]))
     train(x_train, y_train, i, learning_rates[i])
