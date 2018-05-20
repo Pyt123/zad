@@ -20,7 +20,7 @@ GLOBAL_COUNTER = 1
 def save_model_as_numpy(model):
     i = 1
     for parameter in model.parameters():
-        nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float32)
+        nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float16)
         np.save('model/params' + str(i), nump, allow_pickle=True)
         i += 1
 
@@ -47,8 +47,8 @@ def get_predicted(x, model):
     w1 = np.transpose(w1).copy(order='C')
     w2 = np.transpose(w2).copy(order='C')
     output_array = []
-    layer1 = np.empty((336,), order='C', dtype=np.float32)
-    layer2 = np.empty((36,), order='C', dtype=np.float32)
+    layer1 = np.empty((336,), order='C')#, dtype=np.float32)
+    layer2 = np.empty((36,), order='C')#, dtype=np.float32)
     length = len(x)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
@@ -135,10 +135,10 @@ def test(model, y_val):
 (x_train, y_train) = (x[:27500], y[:27500])
 (x_val, y_val) = (x[27500:], y[27500:])
 
-INCREASE_EPOCHS = 500
+INCREASE_EPOCHS = 1000
 
 learning_rates = [0.001, 0.0008, 0.0006]
-epsilons = [0.001, 0.0001, 0.00001]
+epsilons = [0.01, 0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
         print('Testing learning rate = ' + str(learning_rates[i]) + ' and epsilon = ' + str(epsilons[j]))
