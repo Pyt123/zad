@@ -60,7 +60,7 @@ def get_predicted(x, model):
     output_vector = np.array(output_array)
     return output_vector.reshape((len(output_vector), 1))
 
-EPOCHS = 10000
+EPOCHS = 6000
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
@@ -143,8 +143,8 @@ def test(model, y_val):
 
 INCREASE_EPOCHS = 2000
 
-learning_rates = [0.001, 0.0008, 0.0006]
-epsilons = [0.01, 0.001]
+learning_rates = [0.0008, 0.0006]
+epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
         print('Testing learning rate = ' + str(learning_rates[i]) + ' and epsilon = ' + str(epsilons[j]))
