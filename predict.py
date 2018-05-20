@@ -117,10 +117,11 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
 
     torch.save(model, 'endingmodel' + str(num_of_try) + '.pth')
     ratio = test(model, y_val)
-            if ratio > LAST_BEST:
-                torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
-                LAST_BEST = ratio
-                BEST_EPOCH = epoch
+    if ratio > LAST_BEST:
+        LAST_BEST = ratio
+        BEST_EPOCH = epoch
+        torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
+
     print('END-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
     return model
 
