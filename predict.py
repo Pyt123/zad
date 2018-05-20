@@ -47,7 +47,7 @@ def get_predicted(x, model):
     w1 = np.transpose(w1).copy(order='C')
     w2 = np.transpose(w2).copy(order='C')
     output_array = []
-    layer1 = np.empty((336,), order='C')#, dtype=np.float32)
+    layer1 = np.empty((880,), order='C')#, dtype=np.float32)
     layer2 = np.empty((36,), order='C')#, dtype=np.float32)
     length = len(x)
     for i in range(0, length):
@@ -60,7 +60,7 @@ def get_predicted(x, model):
     output_vector = np.array(output_array)
     return output_vector.reshape((len(output_vector), 1))
 
-EPOCHS = 3000
+EPOCHS = 10000
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
@@ -116,6 +116,11 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             print('Epoch [{}/{}],\tLoss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'endingmodel' + str(num_of_try) + '.pth')
+    ratio = test(model, y_val)
+            if ratio > LAST_BEST:
+                torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
+                LAST_BEST = ratio
+                BEST_EPOCH = epoch
     print('END-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
     return model
 
@@ -135,7 +140,7 @@ def test(model, y_val):
 (x_train, y_train) = (x[:27500], y[:27500])
 (x_val, y_val) = (x[27500:], y[27500:])
 
-INCREASE_EPOCHS = 1000
+INCREASE_EPOCHS = 2000
 
 learning_rates = [0.001, 0.0008, 0.0006]
 epsilons = [0.01, 0.001]

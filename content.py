@@ -5,7 +5,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
 
-HIDDEN_SIZES = [336, 336]
+HIDDEN_SIZES = [880, 336]
 
 NUM_OF_CLASSES = 36
 INPUT_RESOLUTION = 56
