@@ -30,7 +30,7 @@ def save_model_as_numpy(model):
 def load_model_from_file():
     return (np.load('model/params1.npy'), np.load('model/params2.npy'),
             np.load('model/params3.npy'), np.load('model/params4.npy'),
-            np.load('model/params5.npy'), np.load('model/params6.npy')
+            np.load('model/params5.npy'), np.load('model/params6.npy'),
             np.load('model/params7.npy'), np.load('model/params8.npy'))
 
 
