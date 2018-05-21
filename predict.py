@@ -72,7 +72,7 @@ def get_predicted(x, model):
     output_vector = np.array(output_array)
     return output_vector.reshape((len(output_vector), 1))
 
-EPOCHS = 3000
+EPOCHS = 30
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
@@ -81,7 +81,7 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #LR = START_LR
     #DIVIDER_MOM = 1.03
     #DIVIDER_LR = 1.05
-    EPOCHS_TO_CHANGE = 300
+    EPOCHS_TO_CHANGE = 10
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
@@ -154,7 +154,7 @@ def test(model, y_val):
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
-learning_rates = [0.0008]
+learning_rates = [0.0002]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
