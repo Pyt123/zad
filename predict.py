@@ -14,6 +14,7 @@ from torch import nn
 import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
+from google.colab import files
 
 global_counter = 0
 
@@ -29,7 +30,8 @@ def save_model_as_numpy(model):
 def load_model_from_file():
     return (np.load('model/params1.npy'), np.load('model/params2.npy'),
             np.load('model/params3.npy'), np.load('model/params4.npy'),
-            np.load('model/params5.npy'), np.load('model/params6.npy'))
+            np.load('model/params5.npy'), np.load('model/params6.npy')
+            np.load('model/params7.npy'), np.load('model/params8.npy'))
 
 
 def save_model_as_txt(par1, par2, par3, par4):
@@ -45,14 +47,16 @@ def relu(x):
 
 def get_predicted(x, model):
     save_model_as_numpy(model)
-    (w1, p1, w2, p2, w3, p3) = load_model_from_file()
+    (w1, p1, w2, p2, w3, p3, w4, p4) = load_model_from_file()
     w1 = np.transpose(w1).copy(order='C')
     w2 = np.transpose(w2).copy(order='C')
     w3 = np.transpose(w3).copy(order='C')
+    w4 = np.transpose(w4).copy(order='C')
 
     layer1 = np.empty((336,), order='C')#, dtype=np.float32)
     layer2 = np.empty((336,), order='C')#, dtype=np.float32)
-    layer3 = np.empty((36,), order='C')#, dtype=np.float32)
+    layer3 = np.empty((336,), order='C')#, dtype=np.float32)
+    layer4 = np.empty((36,), order='C')#, dtype=np.float32)
 
     output_array = []
     length = len(x)
@@ -60,19 +64,24 @@ def get_predicted(x, model):
         np.matmul(x[i], w1, out=layer1)
         layer1 += p1
         layer1 = relu(layer1)
+        
         np.matmul(layer1, w2, out=layer2)
         layer2 += p2
         layer2 = relu(layer2)
+        
         np.matmul(layer2, w3, out=layer3)
         layer3 += p3
         layer3 = relu(layer3)
-
-        output_array.append(layer3.argmax())
+        
+        np.matmul(layer3, w4, out=layer4)
+        layer4 += p4
+        layer4 = relu(layer4)
+        output_array.append(layer4.argmax())
 
     output_vector = np.array(output_array)
     return output_vector.reshape((len(output_vector), 1))
 
-EPOCHS = 30
+EPOCHS = 10000
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
@@ -81,7 +90,7 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #LR = START_LR
     #DIVIDER_MOM = 1.03
     #DIVIDER_LR = 1.05
-    EPOCHS_TO_CHANGE = 10
+    EPOCHS_TO_CHANGE = 300
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
@@ -153,8 +162,8 @@ def test(model, y_val):
 (x_val, y_val) = (x[27500:], y[27500:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
-INCREASE_EPOCHS = 1000
-learning_rates = [0.0002]
+INCREASE_EPOCHS = 5000
+learning_rates = [0.0005, 0.0001]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
@@ -164,11 +173,13 @@ for i in range(len(learning_rates)):
     print('\n')
     EPOCHS += INCREASE_EPOCHS
 
-model = torch.load('bestmodel0.pth')
+#model = torch.load('bestmodel0.pth')
 #save_model_as_numpy(model)
 #load_model_from_file()
-test(model, y_val)
+#test(model, y_val)
 #print('saved as numpy')
+files.download('bestmodel0.pth')
+files.download('bestmodel1.pth')
 exit(0)
 
 #save_model_as_numpy(model)
