@@ -15,11 +15,20 @@ import torch.optim as optim
 import torch.nn.functional as F
 import numpy as np
 
-GLOBAL_COUNTER = 1
+global_counter = 0
 
-def save_model_as_numpy(model):
+
+def save_model_as_numpy(model1, model2, model3):
     i = 1
-    for parameter in model.parameters():
+    for parameter in model1.parameters():
+        nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float16)
+        np.save('model/params' + str(i), nump, allow_pickle=True)
+        i += 1
+    for parameter in model2.parameters():
+        nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float16)
+        np.save('model/params' + str(i), nump, allow_pickle=True)
+        i += 1
+    for parameter in model3.parameters():
         nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float16)
         np.save('model/params' + str(i), nump, allow_pickle=True)
         i += 1
@@ -27,7 +36,11 @@ def save_model_as_numpy(model):
 
 def load_model_from_file():
     return (np.load('model/params1.npy'), np.load('model/params2.npy'),
-            np.load('model/params3.npy'), np.load('model/params4.npy'))
+            np.load('model/params3.npy'), np.load('model/params4.npy'),
+            np.load('model/params5.npy'), np.load('model/params6.npy'),
+            np.load('model/params7.npy'), np.load('model/params8.npy'),
+            np.load('model/params9.npy'), np.load('model/params10.npy'),
+            np.load('model/params11.npy'), np.load('model/params12.npy'))
 
 
 def save_model_as_txt(par1, par2, par3, par4):
@@ -41,15 +54,38 @@ def relu(x):
     return x * (x > 0)
 
 
-def get_predicted(x, model):
-    save_model_as_numpy(model)
-    (w1, p1, w2, p2) = load_model_from_file()
+def the_most_common(a, pa, b, pb, c, pc):
+    if a == b:
+        return a
+    if a == c:
+        return a
+    if b == c:
+        return b
+    global global_counter
+    global_counter += 1
+    print(str(global_counter) + '\ta: ' + str(a) + '\tb: ' + str(b) + '\tc: ' + str(c))
+    return -1
+
+
+def get_predicted(x, model1, model2, model3):
+    save_model_as_numpy(model1, model2, model3)
+    (w1, p1, w2, p2, w11, p11, w22, p22, w111, p111, w222, p222) = load_model_from_file()
     w1 = np.transpose(w1).copy(order='C')
     w2 = np.transpose(w2).copy(order='C')
-    output_array = []
-    layer1 = np.empty((336,), order='C')#, dtype=np.float32)
+    w11 = np.transpose(w11).copy(order='C')
+    w22 = np.transpose(w22).copy(order='C')
+    w111 = np.transpose(w111).copy(order='C')
+    w222 = np.transpose(w222).copy(order='C')
+    layer1 = np.empty((880,), order='C')#, dtype=np.float32)
     layer2 = np.empty((36,), order='C')#, dtype=np.float32)
+    layer11 = np.empty((880,), order='C')#, dtype=np.float32)
+    layer22 = np.empty((36,), order='C')#, dtype=np.float32)
+    layer111 = np.empty((336,), order='C')#, dtype=np.float32)
+    layer222 = np.empty((36,), order='C')#, dtype=np.float32)
+
+    output_array = []
     length = len(x)
+    (a, b, c) = (0, 0, 0)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
         layer1 += p1
@@ -57,6 +93,27 @@ def get_predicted(x, model):
         np.matmul(layer1, w2, out=layer2)
         layer2 += p2
         layer2 = relu(layer2)
+        a = layer2.argmax()
+
+        np.matmul(x[i], w11, out=layer11)
+        layer11 += p11
+        layer11 = relu(layer11)
+        np.matmul(layer11, w22, out=layer22)
+        layer22 += p22
+        layer22 = relu(layer22)
+        b = layer22.argmax()
+
+        np.matmul(x[i], w111, out=layer111)
+        layer111 += p111
+        layer111 = relu(layer111)
+        np.matmul(layer111, w222, out=layer222)
+        layer222 += p222
+        layer222 = relu(layer222)
+        c = layer222.argmax()
+
+        predicted = the_most_common(a, layer2[a], b, layer22[b], c, layer222[c])
+        if predicted < 0:
+            layer2 += layer22 + layer222
         output_array.append(layer2.argmax())
 
     output_vector = np.array(output_array)
@@ -122,15 +179,17 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     return model
 
 
-def test(model, y_val):
+def test(model, model2, model3, y_val):
     good = 0
-    pred = get_predicted(x_val, model)
+    pred = get_predicted(x_val, model, model2, model3)
     #model.eval()
     for i in range(0, 2634):
         #pred = model(x_val[i]).cpu().data.numpy()
         #if pred.argmax() == y_val[i]:
         if pred[i] == y_val[i]:
             good += 1
+        else:
+            print(str(int(pred[i])) + '\t' + str(int(y_val[i])))
     ratio = (good / 2634.0) * 100
     print("ratio: " + str(ratio))
     return ratio
@@ -141,7 +200,7 @@ def test(model, y_val):
 (x_val, y_val) = (x[27500:], y[27500:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
-INCREASE_EPOCHS = 1000
+'''INCREASE_EPOCHS = 1000
 learning_rates = [0.0008]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
@@ -151,11 +210,14 @@ for i in range(len(learning_rates)):
         print('\n')
     print('\n')
     EPOCHS += INCREASE_EPOCHS
+'''
+model1 = torch.load('bestmodel0.pth')
+model2 = torch.load('bestmodel1.pth')
+model3 = torch.load('bestmodel2.pth')
 
-#model = torch.load('bestmodel0.pth')
 #save_model_as_numpy(model)
 #load_model_from_file()
-#test(model, y_val)
+test(model1, model2, model3, y_val)
 #print('saved as numpy')
 exit(0)
 
