@@ -17,7 +17,8 @@ import numpy as np
 from google.colab import files
 
 global_counter = 0
-
+TRAINING_COUNT = 24200
+VALIDATE_COUNT = 30134 - TRAINING_COUNT
 
 def save_model_as_numpy(model):
     i = 1
@@ -90,7 +91,7 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #LR = START_LR
     #DIVIDER_MOM = 1.03
     #DIVIDER_LR = 1.05
-    EPOCHS_TO_CHANGE = 300
+    EPOCHS_TO_CHANGE = 250
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
@@ -145,21 +146,21 @@ def test(model, y_val):
     good = 0
     pred = get_predicted(x_val, model)
     #model.eval()
-    for i in range(0, 2634):
+    for i in range(0, VALIDATE_COUNT):
         #pred = model(x_val[i]).cpu().data.numpy()
         #if pred.argmax() == y_val[i]:
         if pred[i] == y_val[i]:
             good += 1
         #else:
          #   print(str(int(pred[i])) + '\t' + str(int(y_val[i])))
-    ratio = (good / 2634.0) * 100
+    ratio = (good / VALIDATE_COUNT) * 100
     print("ratio: " + str(ratio))
     return ratio
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_train, y_train) = (x[:27500], y[:27500])
-(x_val, y_val) = (x[27500:], y[27500:])
+(x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
+(x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 5000
