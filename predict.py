@@ -82,7 +82,10 @@ def get_predicted(x, model):
     output_vector = np.array(output_array)
     return output_vector.reshape((len(output_vector), 1))
 
-EPOCHS = 10000
+
+EPOCHS = 3000
+EPOCHS_TO_CHANGE = 20
+
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
@@ -91,7 +94,6 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #LR = START_LR
     #DIVIDER_MOM = 1.03
     #DIVIDER_LR = 1.05
-    EPOCHS_TO_CHANGE = 250
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
@@ -120,6 +122,9 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             ratio = test(model, y_val)
+            if ratio > 88:
+                optimizer = optim.Adam(model.parameters(), lr=learning_rate/10, eps=epsilon)
+
             if ratio > LAST_BEST:
                 torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
                 LAST_BEST = ratio
@@ -163,8 +168,8 @@ def test(model, y_val):
 (x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
-INCREASE_EPOCHS = 5000
-learning_rates = [0.0005, 0.0001]
+INCREASE_EPOCHS = 1500
+learning_rates = [0.1, 0.05, 0.01]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
@@ -181,6 +186,7 @@ for i in range(len(learning_rates)):
 #print('saved as numpy')
 files.download('bestmodel0.pth')
 files.download('bestmodel1.pth')
+files.download('bestmodel2.pth')
 exit(0)
 
 #save_model_as_numpy(model)
