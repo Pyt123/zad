@@ -83,8 +83,8 @@ def get_predicted(x, model):
     return output_vector.reshape((len(output_vector), 1))
 
 
-EPOCHS = 3000
-EPOCHS_TO_CHANGE = 20
+EPOCHS = 2000
+EPOCHS_TO_CHANGE = 50
 
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
@@ -169,7 +169,7 @@ def test(model, y_val):
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1500
-learning_rates = [0.1, 0.05, 0.01]
+learning_rates = [0.01, 0.05]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
