@@ -124,9 +124,9 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             ratio = test(model, y_val)
             if ratio > 88:
                 optimizer = optim.Adam(model.parameters(), lr=learning_rate/10, eps=epsilon)
-            else if ratio > 85:
+            elif ratio > 85:
                 optimizer = optim.Adam(model.parameters(), lr=learning_rate/2.5, eps=epsilon)
-            else if ratio > 87:
+            elif ratio > 87:
                 optimizer = optim.Adam(model.parameters(), lr=learning_rate/5, eps=epsilon)
 
 
