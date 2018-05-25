@@ -122,7 +122,7 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             ratio = test(model, y_val)
-            if ratio > 88:
+            if ratio > 86:
                 optimizer = optim.Adam(model.parameters(), lr=learning_rate/10, eps=epsilon)
 
             if ratio > LAST_BEST:
@@ -169,7 +169,7 @@ def test(model, y_val):
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1500
-learning_rates = [0.01, 0.05]
+learning_rates = [0.005, 0.0025, 0.001]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
@@ -184,6 +184,7 @@ for i in range(len(learning_rates)):
 #load_model_from_file()
 #test(model, y_val)
 #print('saved as numpy')
+from google.colab import files
 files.download('bestmodel0.pth')
 files.download('bestmodel1.pth')
 files.download('bestmodel2.pth')
