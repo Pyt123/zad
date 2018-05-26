@@ -17,7 +17,7 @@ import numpy as np
 from google.colab import files
 
 global_counter = 0
-VALIDATE_COUNT = 14200
+VALIDATE_COUNT = 8000
 TRAINING_COUNT = 30134 - VALIDATE_COUNT
 
 def save_model_as_numpy(model):
@@ -122,12 +122,12 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             ratio = test(model, y_val)
-            if ratio > 88:
-                optimizer = optim.Adam(model.parameters(), lr=learning_rate/10, eps=epsilon)
-            elif ratio > 85:
-                optimizer = optim.Adam(model.parameters(), lr=learning_rate/2.5, eps=epsilon)
-            elif ratio > 87:
-                optimizer = optim.Adam(model.parameters(), lr=learning_rate/5, eps=epsilon)
+            #if ratio > 88:
+                #optimizer = optim.Adam(model.parameters(), lr=learning_rate/10, eps=epsilon)
+            #elif ratio > 85:
+                #optimizer = optim.Adam(model.parameters(), lr=learning_rate/2.5, eps=epsilon)
+            #elif ratio > 87:
+                #optimizer = optim.Adam(model.parameters(), lr=learning_rate/5, eps=epsilon)
 
 
             if ratio > LAST_BEST:
@@ -170,12 +170,12 @@ def test(model, y_val):
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_train, y_train) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
-(x_val, y_val) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
+(x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
+(x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
-learning_rates = [0.0025]
+learning_rates = [0.0005]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
