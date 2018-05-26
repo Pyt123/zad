@@ -18,7 +18,7 @@ from google.colab import files
 
 global_counter = 0
 VALIDATE_COUNT = 14200
-TRAINING_COUNT = 30134 - TRAINING_COUNT
+TRAINING_COUNT = 30134 - VALIDATE_COUNT
 
 def save_model_as_numpy(model):
     i = 1
