@@ -17,7 +17,7 @@ import numpy as np
 from google.colab import files
 
 global_counter = 0
-TRAINING_COUNT = 24200
+TRAINING_COUNT = 14200
 VALIDATE_COUNT = 30134 - TRAINING_COUNT
 
 def save_model_as_numpy(model):
@@ -99,9 +99,9 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     BEST_EPOCH = 0
 
     # Create model
-    model = content.NeuralNet().cuda()
+    #model = content.NeuralNet().cuda()
     # Load model
-    #model = torch.load('mytraining.pth')
+    model = torch.load('torchmodel' + str(num_of_try) + '.pth')
 
     # Some stuff
     #optimizer = optim.RMSprop(model.parameters())
@@ -169,8 +169,8 @@ def test(model, y_val):
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
-(x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
+(x_train, y_train) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
+(x_val, y_val) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
