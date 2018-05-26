@@ -84,7 +84,7 @@ def get_predicted(x, model):
 
 
 EPOCHS = 200
-EPOCHS_TO_CHANGE = 5000
+EPOCHS_TO_CHANGE = 199
 
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
@@ -170,8 +170,8 @@ def test(model, y_val):
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_train, y_train) = (x[VALIDATE_COUNT:TRAINING_COUNT], y[VALIDATE_COUNT:TRAINING_COUNT])
-(x_val, y_val) = (x[:VALIDATE_COUNT], y[:TRAINING_COUNT])
+(x_train, y_train) = (x, y)
+(x_val, y_val) = (x, y)
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
