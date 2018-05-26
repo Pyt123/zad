@@ -102,7 +102,7 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     #model = content.NeuralNet().cuda()
     # Load model
     model = torch.load('torchmodel' + str(num_of_try) + '.pth')
-
+    print("Loaded...")
     # Some stuff
     #optimizer = optim.RMSprop(model.parameters())
     #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
@@ -155,7 +155,7 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
 def test(model, y_val):
     good = 0
     pred = get_predicted(x_val, model)
-    #model.eval()
+    model.eval()
     for i in range(0, VALIDATE_COUNT):
         #pred = model(x_val[i]).cpu().data.numpy()
         #if pred.argmax() == y_val[i]:
@@ -164,6 +164,7 @@ def test(model, y_val):
         #else:
          #   print(str(int(pred[i])) + '\t' + str(int(y_val[i])))
     ratio = (good / VALIDATE_COUNT) * 100
+    model.train()
     print("ratio: " + str(ratio))
     return ratio
 
