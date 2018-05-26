@@ -17,7 +17,7 @@ import numpy as np
 from google.colab import files
 
 global_counter = 0
-VALIDATE_COUNT = 8000
+VALIDATE_COUNT = 6000
 TRAINING_COUNT = 30134 - VALIDATE_COUNT
 
 def save_model_as_numpy(model):
@@ -170,8 +170,8 @@ def test(model, y_val):
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
-(x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
+(x_train, y_train) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
+(x_val, y_val) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
