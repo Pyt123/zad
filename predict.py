@@ -17,7 +17,7 @@ import numpy as np
 from google.colab import files
 
 global_counter = 0
-VALIDATE_COUNT = 5000
+VALIDATE_COUNT = 0
 TRAINING_COUNT = 30134 - VALIDATE_COUNT
 
 def save_model_as_numpy(model):
@@ -83,8 +83,8 @@ def get_predicted(x, model):
     return output_vector.reshape((len(output_vector), 1))
 
 
-EPOCHS = 1000
-EPOCHS_TO_CHANGE = 50
+EPOCHS = 200
+EPOCHS_TO_CHANGE = 5000
 
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
