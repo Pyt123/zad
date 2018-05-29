@@ -80,8 +80,8 @@ def get_predicted(x):
     return output_vector.reshape((len(output_vector), 1))
 
 
-EPOCHS = 2000
-EPOCHS_TO_CHANGE = 100
+EPOCHS = 4000
+EPOCHS_TO_CHANGE = 200
 
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
@@ -117,8 +117,8 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             permute_train_set()
             ratio = test(y_val)
+            torch.save(model, 'notend' + str(num_of_try) + '.pth')
             if ratio > LAST_BEST:
-                torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
                 LAST_BEST = ratio
                 BEST_EPOCH = epoch
                 print('\n-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
@@ -143,14 +143,14 @@ def test(y_val):
     good = 0
     pred = get_predicted(x_val)
     #model.eval()
-    for i in range(0, VALIDATE_COUNT):
+    for i in range(len(y_val)):
         #pred = model(x_val[i]).cpu().data.numpy()
         #if pred.argmax() == y_val[i]:
         if pred[i] == y_val[i]:
             good += 1
         #else:
          #   print(str(int(pred[i])) + '\t' + str(int(y_val[i])))
-    ratio = (good / VALIDATE_COUNT) * 100
+    ratio = (good / len(y_val)) * 100
     print("ratio: " + str(ratio))
     return ratio
 
@@ -165,9 +165,9 @@ def permute_train_set():
     newX = []
     newY = []
     for i in range(len(x)):
-        (x, y) = arr[i]
-        newX.append(x)
-        newY.append(y)
+        (xp, yp) = arr[i]
+        newX.append(xp)
+        newY.append(yp)
 
     (x_train, y_train) = (np.asarray(newX[:5000]), np.asarray(newY[:5000]))
     (x_val, y_val) = (np.asarray(newX[(30164-1500):]), np.asarray(newY[(30164-1500):]))
