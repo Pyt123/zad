@@ -96,9 +96,8 @@ def train(num_of_try, learning_rate, epsilon):
     BEST_EPOCH = 0
 
     # Create model
-    model = content.NeuralNet().cuda()
     # Load model
-    #model = torch.load('mytraining.pth')
+    model = torch.load('mytraining.pth')
 
     # Some stuff
     #optimizer = optim.RMSprop(model.parameters())
@@ -177,18 +176,20 @@ def permute_train_set():
     (x_val, y_val) = (np.asarray(newX[(30164-1500):]), np.asarray(newY[(30164-1500):]))
 
 
+print("start")
+
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
 (x_val, y_val) = (x[(30164-1500):], y[(30164-1500):])
 (x_train, y_train) = (x[:10000], y[:10000])
 
 permute_train_set()
-model = torch.load('bestmodel0.pth')
+#model = torch.load('bestmodel0.pth')
 
 '''x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000'''
-learning_rates = [0.0020]
+learning_rates = [0.00005]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
