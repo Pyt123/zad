@@ -7,18 +7,15 @@
 # --------------------------------------------------------------------------
 
 import content
-import time
 import torch
 import pickle as pkl
 from torch import nn
 import torch.optim as optim
-import torch.nn.functional as F
 import numpy as np
-from google.colab import files
 
 global_counter = 0
-VALIDATE_COUNT = 30134
-#TRAINING_COUNT = 30134 - VALIDATE_COUNT
+TRAINING_COUNT = 5000
+VALIDATE_COUNT = 1500
 
 def save_model_as_numpy(model):
     i = 1
@@ -46,7 +43,7 @@ def relu(x):
     return x * (x > 0)
 
 
-def get_predicted(x, model):
+def get_predicted(x):
     save_model_as_numpy(model)
     (w1, p1, w2, p2, w3, p3, w4, p4) = load_model_from_file()
     w1 = np.transpose(w1).copy(order='C')
@@ -54,10 +51,10 @@ def get_predicted(x, model):
     w3 = np.transpose(w3).copy(order='C')
     w4 = np.transpose(w4).copy(order='C')
 
-    layer1 = np.empty((336,), order='C')#, dtype=np.float32)
-    layer2 = np.empty((336,), order='C')#, dtype=np.float32)
-    layer3 = np.empty((336,), order='C')#, dtype=np.float32)
-    layer4 = np.empty((36,), order='C')#, dtype=np.float32)
+    layer1 = np.empty((336,), order='C')
+    layer2 = np.empty((336,), order='C')
+    layer3 = np.empty((336,), order='C')
+    layer4 = np.empty((36,), order='C')
 
     output_array = []
     length = len(x)
@@ -65,15 +62,15 @@ def get_predicted(x, model):
         np.matmul(x[i], w1, out=layer1)
         layer1 += p1
         layer1 = relu(layer1)
-        
+
         np.matmul(layer1, w2, out=layer2)
         layer2 += p2
         layer2 = relu(layer2)
-        
+
         np.matmul(layer2, w3, out=layer3)
         layer3 += p3
         layer3 = relu(layer3)
-        
+
         np.matmul(layer3, w4, out=layer4)
         layer4 += p4
         layer4 = relu(layer4)
@@ -83,8 +80,8 @@ def get_predicted(x, model):
     return output_vector.reshape((len(output_vector), 1))
 
 
-EPOCHS = 200
-EPOCHS_TO_CHANGE = 199
+EPOCHS = 2000
+EPOCHS_TO_CHANGE = 100
 
 
 def train(x_train, y_train, num_of_try, learning_rate, epsilon):
@@ -99,10 +96,10 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     BEST_EPOCH = 0
 
     # Create model
-    #model = content.NeuralNet().cuda()
+    model = content.NeuralNet().cuda()
     # Load model
-    model = torch.load('torchmodel' + str(num_of_try) + '.pth')
-    print("Loaded...")
+    #model = torch.load('mytraining.pth')
+
     # Some stuff
     #optimizer = optim.RMSprop(model.parameters())
     #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
@@ -117,19 +114,9 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
 
     for epoch in range(EPOCHS):
         if epoch == NEXT_TO_CHANGE:
-            #MOMENTUM /= DIVIDER_MOM
-            #LR /= DIVIDER_LR
-            #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
-            ratio = test(model, y_val)
-            #if ratio > 88:
-                #optimizer = optim.Adam(model.parameters(), lr=learning_rate/10, eps=epsilon)
-            #elif ratio > 85:
-                #optimizer = optim.Adam(model.parameters(), lr=learning_rate/2.5, eps=epsilon)
-            #elif ratio > 87:
-                #optimizer = optim.Adam(model.parameters(), lr=learning_rate/5, eps=epsilon)
-
-
+            permute_train_set()
+            ratio = test(y_val)
             if ratio > LAST_BEST:
                 torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
                 LAST_BEST = ratio
@@ -152,10 +139,10 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
     return model
 
 
-def test(model, y_val):
+def test(y_val):
     good = 0
-    pred = get_predicted(x_val, model)
-    model.eval()
+    pred = get_predicted(x_val)
+    #model.eval()
     for i in range(0, VALIDATE_COUNT):
         #pred = model(x_val[i]).cpu().data.numpy()
         #if pred.argmax() == y_val[i]:
@@ -164,18 +151,40 @@ def test(model, y_val):
         #else:
          #   print(str(int(pred[i])) + '\t' + str(int(y_val[i])))
     ratio = (good / VALIDATE_COUNT) * 100
-    model.train()
     print("ratio: " + str(ratio))
     return ratio
 
 
+def permute_train_set():
+    global x, y, x_val, y_val, x_train, y_train
+    arr = []
+    for i in range(len(x)):
+        arr.append((x[i], y[i]))
+
+    arr = np.random.permutation(arr)
+    newX = []
+    newY = []
+    for i in range(len(x)):
+        (x, y) = arr[i]
+        newX.append(x)
+        newY.append(y)
+
+    (x_train, y_train) = (newX[:5000], newY[:5000])
+    (x_val, y_val) = (newX[(30164-1500):], newY[(30164-1500):])
+
+
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_train, y_train) = (x, y)
-(x_val, y_val) = (x, y)
+(x_val, y_val) = (x[(30164-1500):], y[(30164-1500):])
+(x_train, y_train) = (x[:5000], y[:5000])
+
+permute_train_set()
+model = torch.load('bestmodel0.pth')
+
+'''x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
-INCREASE_EPOCHS = 1000
-learning_rates = [0.0005]
+INCREASE_EPOCHS = 1000'''
+learning_rates = [0.25]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
@@ -183,17 +192,13 @@ for i in range(len(learning_rates)):
         train(x_train, y_train, i + 100 * j, learning_rates[i], epsilons[j])
         print('\n')
     print('\n')
-    EPOCHS += INCREASE_EPOCHS
 
-#model = torch.load('bestmodel0.pth')
+
 #save_model_as_numpy(model)
 #load_model_from_file()
-#test(model, y_val)
+#print("now")
+#get_predicted(x_train)
 #print('saved as numpy')
-#from google.colab import files
-#files.download('bestmodel0.pth')
-#files.download('bestmodel1.pth')
-#files.download('bestmodel2.pth')
 exit(0)
 
 #save_model_as_numpy(model)
