@@ -81,10 +81,10 @@ def get_predicted(x):
 
 
 EPOCHS = 4000
-EPOCHS_TO_CHANGE = 200
+EPOCHS_TO_CHANGE = 20
 
 
-def train(x_train, y_train, num_of_try, learning_rate, epsilon):
+def train(num_of_try, learning_rate, epsilon):
     #START_MOMENTUM = 1
     #MOMENTUM = START_MOMENTUM
     #START_LR = 1
@@ -116,6 +116,10 @@ def train(x_train, y_train, num_of_try, learning_rate, epsilon):
         if epoch == NEXT_TO_CHANGE:
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             permute_train_set()
+            inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
+            targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
+            targets = targets.squeeze(1)
+
             ratio = test(y_val)
             torch.save(model, 'notend' + str(num_of_try) + '.pth')
             if ratio > LAST_BEST:
@@ -184,12 +188,12 @@ model = torch.load('bestmodel0.pth')
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000'''
-learning_rates = [0.25]
+learning_rates = [0.025]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
         print('Testing learning rate = ' + str(learning_rates[i]) + ' and epsilon = ' + str(epsilons[j]))
-        train(x_train, y_train, i + 100 * j, learning_rates[i], epsilons[j])
+        train(i + 100 * j, learning_rates[i], epsilons[j])
         print('\n')
     print('\n')
 
