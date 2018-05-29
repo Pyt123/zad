@@ -169,8 +169,8 @@ def permute_train_set():
         newX.append(x)
         newY.append(y)
 
-    (x_train, y_train) = (newX[:5000], newY[:5000])
-    (x_val, y_val) = (newX[(30164-1500):], newY[(30164-1500):])
+    (x_train, y_train) = (np.asarray(newX[:5000]), np.asarray(newY[:5000]))
+    (x_val, y_val) = (np.asarray(newX[(30164-1500):]), np.asarray(newY[(30164-1500):]))
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
