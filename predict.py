@@ -188,7 +188,7 @@ model = torch.load('mytraining.pth')
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
-learning_rates = [0.00005]
+learning_rates = [0.00001]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
