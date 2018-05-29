@@ -80,8 +80,8 @@ def get_predicted(x):
     return output_vector.reshape((len(output_vector), 1))
 
 
-EPOCHS = 20000
-EPOCHS_TO_CHANGE = 250
+EPOCHS = 5000
+EPOCHS_TO_CHANGE = 200
 
 
 def train(num_of_try, learning_rate, epsilon):
@@ -173,13 +173,13 @@ def permute_train_set():
         newX.append(xp)
         newY.append(yp)
 
-    (x_train, y_train) = (np.asarray(newX[:5000]), np.asarray(newY[:5000]))
+    (x_train, y_train) = (np.asarray(newX[:10000]), np.asarray(newY[:10000]))
     (x_val, y_val) = (np.asarray(newX[(30164-1500):]), np.asarray(newY[(30164-1500):]))
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
 (x_val, y_val) = (x[(30164-1500):], y[(30164-1500):])
-(x_train, y_train) = (x[:5000], y[:5000])
+(x_train, y_train) = (x[:10000], y[:10000])
 
 permute_train_set()
 model = torch.load('bestmodel0.pth')
