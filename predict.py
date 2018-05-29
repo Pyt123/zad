@@ -97,7 +97,6 @@ def train(num_of_try, learning_rate, epsilon):
 
     # Create model
     # Load model
-    model = torch.load('mytraining.pth')
 
     # Some stuff
     #optimizer = optim.RMSprop(model.parameters())
@@ -183,7 +182,7 @@ print("start")
 (x_train, y_train) = (x[:10000], y[:10000])
 
 permute_train_set()
-#model = torch.load('bestmodel0.pth')
+model = torch.load('mytraining.pth')
 
 '''x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
