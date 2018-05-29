@@ -80,8 +80,8 @@ def get_predicted(x):
     return output_vector.reshape((len(output_vector), 1))
 
 
-EPOCHS = 4000
-EPOCHS_TO_CHANGE = 20
+EPOCHS = 10000
+EPOCHS_TO_CHANGE = 200
 
 
 def train(num_of_try, learning_rate, epsilon):
