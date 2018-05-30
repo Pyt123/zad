@@ -117,12 +117,11 @@ def train(num_of_try, learning_rate, epsilon):
         if epoch == NEXT_TO_CHANGE:
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             permute_train_set()
-            print(x_train[0])
             inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
             targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
             targets = targets.squeeze(1)
 
-            ratio = test(y_val)
+            ratio = test()
             torch.save(model, 'notend' + str(num_of_try) + '.pth')
             if ratio > LAST_BEST:
                 LAST_BEST = ratio
@@ -145,7 +144,7 @@ def train(num_of_try, learning_rate, epsilon):
     return model
 
 
-def test(y_val):
+def test():
     good = 0
     pred = get_predicted(x_val)
     #model.eval()
@@ -180,7 +179,7 @@ def permute_train_set():
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_val, y_val) = (x[(30164-VALIDATE_COUNT):], y[(30164-VALIDATE_COUNT):])
+(x_val, y_val) = (x[(30134-VALIDATE_COUNT):], y[(30134-VALIDATE_COUNT):])
 (x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
 
 model = torch.load('mytraining.pth')
