@@ -15,7 +15,7 @@ import numpy as np
 
 global_counter = 0
 TRAINING_COUNT = 2500
-VALIDATE_COUNT = 500
+VALIDATE_COUNT = 100
 
 def save_model_as_numpy(model):
     i = 1
@@ -172,13 +172,13 @@ def permute_train_set():
         newY.append(yp)
 
     (x_train, y_train) = (np.asarray(newX[:TRAINING_COUNT]), np.asarray(newY[:TRAINING_COUNT]))
-    (x_val, y_val) = (np.asarray(newX[(30164-500):]), np.asarray(newY[(30164-500):]))
+    (x_val, y_val) = (np.asarray(newX[(30164-VALIDATE_COUNT):]), np.asarray(newY[(30164-VALIDATE_COUNT):]))
 
 
 print("start")
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
-(x_val, y_val) = (x[(30164-500):], y[(30164-500):])
+(x_val, y_val) = (x[(30164-VALIDATE_COUNT):], y[(30164-VALIDATE_COUNT):])
 (x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
 
 permute_train_set()
@@ -188,7 +188,7 @@ model = torch.load('mytraining.pth')
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
-learning_rates = [0.0000025]
+learning_rates = [0.0000015]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
