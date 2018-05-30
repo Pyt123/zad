@@ -175,7 +175,7 @@ def permute_train_set():
         newY.append(yp)
 
     (x_train, y_train) = (np.asarray(newX[:TRAINING_COUNT]), np.asarray(newY[:TRAINING_COUNT]))
-    (x_val, y_val) = (np.asarray(newX[(30164-VALIDATE_COUNT):]), np.asarray(newY[(30164-VALIDATE_COUNT):]))
+    (x_val, y_val) = (np.asarray(newX[(30134-VALIDATE_COUNT):]), np.asarray(newY[(30134-VALIDATE_COUNT):]))
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
