@@ -14,7 +14,7 @@ import torch.optim as optim
 import numpy as np
 
 global_counter = 0
-TRAINING_COUNT = 7500
+TRAINING_COUNT = 2500
 VALIDATE_COUNT = 500
 
 def save_model_as_numpy(model):
@@ -188,7 +188,7 @@ model = torch.load('mytraining.pth')
 #x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
 #targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 INCREASE_EPOCHS = 1000
-learning_rates = [0.000005]
+learning_rates = [0.0000025]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
