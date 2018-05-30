@@ -14,13 +14,16 @@ import torch.optim as optim
 import numpy as np
 
 global_counter = 0
-TRAINING_COUNT = 2500
-VALIDATE_COUNT = 100
+TRAINING_COUNT = 500
+VALIDATE_COUNT = 10
+
 
 def save_model_as_numpy(model):
     i = 1
     for parameter in model.parameters():
         nump = parameter.cpu().type(torch.FloatTensor).data.numpy().astype(np.float16)
+        if i % 2 == 1:
+            nump = np.transpose(nump)
         np.save('model/params' + str(i), nump, allow_pickle=True)
         i += 1
 
@@ -46,10 +49,10 @@ def relu(x):
 def get_predicted(x):
     save_model_as_numpy(model)
     (w1, p1, w2, p2, w3, p3, w4, p4) = load_model_from_file()
-    w1 = np.transpose(w1).copy(order='C')
-    w2 = np.transpose(w2).copy(order='C')
-    w3 = np.transpose(w3).copy(order='C')
-    w4 = np.transpose(w4).copy(order='C')
+    '''w1 = np.transpose(w1)
+    w2 = np.transpose(w2)
+    w3 = np.transpose(w3)
+    w4 = np.transpose(w4)'''
 
     layer1 = np.empty((336,), order='C')
     layer2 = np.empty((336,), order='C')
@@ -60,28 +63,28 @@ def get_predicted(x):
     length = len(x)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
-        layer1 += p1
-        layer1 = relu(layer1)
+        #layer1 += p1
+        lay1 = relu(layer1 + p1)
 
-        np.matmul(layer1, w2, out=layer2)
-        layer2 += p2
-        layer2 = relu(layer2)
+        np.matmul(lay1, w2, out=layer2)
+        #layer2 += p2
+        lay2 = relu(layer2 + p2)
 
-        np.matmul(layer2, w3, out=layer3)
-        layer3 += p3
-        layer3 = relu(layer3)
+        np.matmul(lay2, w3, out=layer3)
+        #layer3 += p3
+        lay3 = relu(layer3 + p3)
 
-        np.matmul(layer3, w4, out=layer4)
-        layer4 += p4
-        layer4 = relu(layer4)
-        output_array.append(layer4.argmax())
+        np.matmul(lay3, w4, out=layer4)
+        #layer4 += p4
+        lay4 = relu(layer4 + p4)
+        output_array.append(lay4.argmax())
 
     output_vector = np.array(output_array)
-    return output_vector.reshape((len(output_vector), 1))
+    return output_vector.reshape(length, 1)
 
 
-EPOCHS = 50000
-EPOCHS_TO_CHANGE = 400
+EPOCHS = 5000000
+EPOCHS_TO_CHANGE = 5000
 
 
 def train(num_of_try, learning_rate, epsilon):
@@ -114,6 +117,7 @@ def train(num_of_try, learning_rate, epsilon):
         if epoch == NEXT_TO_CHANGE:
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             permute_train_set()
+            print(x_train[0])
             inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
             targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
             targets = targets.squeeze(1)
@@ -175,19 +179,12 @@ def permute_train_set():
     (x_val, y_val) = (np.asarray(newX[(30164-VALIDATE_COUNT):]), np.asarray(newY[(30164-VALIDATE_COUNT):]))
 
 
-print("start")
-
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
 (x_val, y_val) = (x[(30164-VALIDATE_COUNT):], y[(30164-VALIDATE_COUNT):])
 (x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
 
-permute_train_set()
 model = torch.load('mytraining.pth')
 
-(x_val, y_val) = (x[TRAINING_COUNT:], y[TRAINING_COUNT:])
-#x_val = torch.autograd.Variable(torch.from_numpy(x_val).type(torch.cuda.FloatTensor), requires_grad=True)
-#targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
-INCREASE_EPOCHS = 1000
 learning_rates = [0.0000015]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
@@ -197,10 +194,10 @@ for i in range(len(learning_rates)):
         print('\n')
     print('\n')
 
-#model = torch.load('mytraining.pth')
 #save_model_as_numpy(model)
 #load_model_from_file()
 #print("now")
+#save_model_as_numpy(model)
 #get_predicted(x_train)
 #print('saved as numpy')
 exit(0)
