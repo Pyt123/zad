@@ -91,8 +91,8 @@ def get_predicted(x):
     return output_vector.reshape(length, 1)
 
 
-EPOCHS = 50000
-EPOCHS_TO_CHANGE = 500
+EPOCHS = 10000
+EPOCHS_TO_CHANGE = 300
 
 
 def train(num_of_try, learning_rate, epsilon):
@@ -116,6 +116,7 @@ def train(num_of_try, learning_rate, epsilon):
             #permute_train_set()
             #inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
             learning_rate /= 1.1
+            optimizer = optim.Adam(model.parameters(), lr=learning_rate, eps=epsilon)
             print('lr = ' + str(learning_rate))
 
             ratio = test()
