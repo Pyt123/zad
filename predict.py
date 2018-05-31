@@ -12,10 +12,11 @@ import pickle as pkl
 from torch import nn
 import torch.optim as optim
 import numpy as np
+import matplotlib.pyplot as plt
 
 global_counter = 0
-TRAINING_COUNT = 500
-VALIDATE_COUNT = 10
+TRAINING_COUNT = 1000
+VALIDATE_COUNT = 2000
 
 
 def save_model_as_numpy(model):
@@ -32,7 +33,9 @@ def load_model_from_file():
     return (np.load('model/params1.npy'), np.load('model/params2.npy'),
             np.load('model/params3.npy'), np.load('model/params4.npy'),
             np.load('model/params5.npy'), np.load('model/params6.npy'),
-            np.load('model/params7.npy'), np.load('model/params8.npy'))
+            np.load('model/params7.npy'), np.load('model/params8.npy'),
+            np.load('model/params9.npy'), np.load('model/params10.npy'),
+            np.load('model/params11.npy'), np.load('model/params12.npy'))
 
 
 def save_model_as_txt(par1, par2, par3, par4):
@@ -48,7 +51,7 @@ def relu(x):
 
 def get_predicted(x):
     save_model_as_numpy(model)
-    (w1, p1, w2, p2, w3, p3, w4, p4) = load_model_from_file()
+    (w1, p1, w2, p2, w3, p3, w4, p4, w5, p5, w6, p6) = load_model_from_file()
     '''w1 = np.transpose(w1)
     w2 = np.transpose(w2)
     w3 = np.transpose(w3)
@@ -57,53 +60,47 @@ def get_predicted(x):
     layer1 = np.empty((336,), order='C')
     layer2 = np.empty((336,), order='C')
     layer3 = np.empty((336,), order='C')
-    layer4 = np.empty((36,), order='C')
+    layer4 = np.empty((336,), order='C')
+    layer5 = np.empty((336,), order='C')
+    layer6 = np.empty((36,), order='C')
 
     output_array = []
     length = len(x)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
-        #layer1 += p1
         lay1 = relu(layer1 + p1)
 
         np.matmul(lay1, w2, out=layer2)
-        #layer2 += p2
         lay2 = relu(layer2 + p2)
 
         np.matmul(lay2, w3, out=layer3)
-        #layer3 += p3
         lay3 = relu(layer3 + p3)
 
         np.matmul(lay3, w4, out=layer4)
-        #layer4 += p4
         lay4 = relu(layer4 + p4)
-        output_array.append(lay4.argmax())
+
+        np.matmul(lay4, w5, out=layer5)
+        lay5 = relu(layer5 + p5)
+
+        np.matmul(lay5, w6, out=layer6)
+        lay6 = relu(layer6 + p6)
+
+        output_array.append(lay6.argmax())
 
     output_vector = np.array(output_array)
     return output_vector.reshape(length, 1)
 
 
-EPOCHS = 5000000
-EPOCHS_TO_CHANGE = 5000
+EPOCHS = 50000
+EPOCHS_TO_CHANGE = 500
 
 
 def train(num_of_try, learning_rate, epsilon):
-    #START_MOMENTUM = 1
-    #MOMENTUM = START_MOMENTUM
-    #START_LR = 1
-    #LR = START_LR
-    #DIVIDER_MOM = 1.03
-    #DIVIDER_LR = 1.05
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
     LAST_BEST = 0
     BEST_EPOCH = 0
 
-    # Create model
-    # Load model
-
     # Some stuff
-    #optimizer = optim.RMSprop(model.parameters())
-    #optimizer = optim.SGD(model.parameters(), lr=LR, momentum=MOMENTUM)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, eps=epsilon)
     criterion = nn.CrossEntropyLoss()
     model.train()
@@ -118,8 +115,8 @@ def train(num_of_try, learning_rate, epsilon):
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
             permute_train_set()
             inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
-            targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
-            targets = targets.squeeze(1)
+            learning_rate /= 1.1
+            print('lr = ' + str(learning_rate))
 
             ratio = test()
             torch.save(model, 'notend' + str(num_of_try) + '.pth')
@@ -147,14 +144,10 @@ def train(num_of_try, learning_rate, epsilon):
 def test():
     good = 0
     pred = get_predicted(x_val)
-    #model.eval()
     for i in range(len(y_val)):
-        #pred = model(x_val[i]).cpu().data.numpy()
-        #if pred.argmax() == y_val[i]:
         if pred[i] == y_val[i]:
             good += 1
-        #else:
-         #   print(str(int(pred[i])) + '\t' + str(int(y_val[i])))
+
     ratio = (good / len(y_val)) * 100
     print("ratio: " + str(ratio))
     return ratio
@@ -163,28 +156,28 @@ def test():
 def permute_train_set():
     global x, y, x_val, y_val, x_train, y_train
     arr = []
-    for i in range(len(x)):
+    for i in range(len(x) - VALIDATE_COUNT):
         arr.append((x[i], y[i]))
 
     arr = np.random.permutation(arr)
     newX = []
     newY = []
-    for i in range(len(x)):
+    for i in range(len(x) - VALIDATE_COUNT):
         (xp, yp) = arr[i]
         newX.append(xp)
         newY.append(yp)
 
     (x_train, y_train) = (np.asarray(newX[:TRAINING_COUNT]), np.asarray(newY[:TRAINING_COUNT]))
-    (x_val, y_val) = (np.asarray(newX[(30134-VALIDATE_COUNT):]), np.asarray(newY[(30134-VALIDATE_COUNT):]))
 
 
 (x, y) = pkl.load(open('train.pkl', mode='rb'))
 (x_val, y_val) = (x[(30134-VALIDATE_COUNT):], y[(30134-VALIDATE_COUNT):])
 (x_train, y_train) = (x[:TRAINING_COUNT], y[:TRAINING_COUNT])
 
-model = torch.load('mytraining.pth')
+#model = torch.load('mytraining.pth')
+model = content.NeuralNet().cuda()
 
-learning_rates = [0.0000015]
+learning_rates = [0.25]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
@@ -192,7 +185,8 @@ for i in range(len(learning_rates)):
         train(i + 100 * j, learning_rates[i], epsilons[j])
         print('\n')
     print('\n')
-
+'''
+#model = torch.load('mytraining.pth')
 #save_model_as_numpy(model)
 #load_model_from_file()
 #print("now")
@@ -203,3 +197,5 @@ exit(0)
 
 #save_model_as_numpy(model)
 #print('saved as numpy')
+'''
+exit(0)
