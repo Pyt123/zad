@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 global_counter = 0
-TRAINING_COUNT = 1000
+TRAINING_COUNT = 28134
 VALIDATE_COUNT = 2000
 
 
@@ -113,8 +113,8 @@ def train(num_of_try, learning_rate, epsilon):
     for epoch in range(EPOCHS):
         if epoch == NEXT_TO_CHANGE:
             NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
-            permute_train_set()
-            inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
+            #permute_train_set()
+            #inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
             learning_rate /= 1.1
             print('lr = ' + str(learning_rate))
 
@@ -123,6 +123,7 @@ def train(num_of_try, learning_rate, epsilon):
             if ratio > LAST_BEST:
                 LAST_BEST = ratio
                 BEST_EPOCH = epoch
+                torch.save(model, 'bestmodel' + str(num_of_try) + '.pth')
                 print('\n-----Best epoch: ' + str(BEST_EPOCH) + '\tBest ratio: ' + str(LAST_BEST) + '-----\n')
 
         outputs = model(inputs)
@@ -177,7 +178,7 @@ def permute_train_set():
 #model = torch.load('mytraining.pth')
 model = content.NeuralNet().cuda()
 
-learning_rates = [0.25]
+learning_rates = [0.025]
 epsilons = [0.001]
 for i in range(len(learning_rates)):
     for j in range(len(epsilons)):
