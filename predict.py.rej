@@ -1,0 +1,12 @@
+diff a/predict.py b/predict.py	(rejected hunks)
+@@ -17,8 +17,8 @@
+ from google.colab import files
+ 
+ global_counter = 0
+-VALIDATE_COUNT = 0
+-TRAINING_COUNT = 30134 - VALIDATE_COUNT
++VALIDATE_COUNT = 30134
++#TRAINING_COUNT = 30134 - VALIDATE_COUNT
+ 
+ def save_model_as_numpy(model):
+     i = 1
